@@ -9,12 +9,17 @@ public interface IntList {
 
     int get(int index);
 
-    void set(int index, int element);
+    boolean isEmpty();
+
+
+    void set(int index, int value);
 
     int size();
 
-    boolean isEmpty();
+    void add(int index, int value);
 
-    void add(int index, int element);
-    int remove(int index);
+    void remove(int index);
+
+    int indexOf(int value);
+
 }

@@ -1,78 +1,46 @@
 package cl5.HOMEWORK;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.Arrays;
 
 public class IntLinkedList implements IntList {
 
     private class Element {
-        private int value;
-        private Element next;
-        private Element previous;
-        private Element first;
-        private Element last;
+        int value;
+        Element previous;
+        Element next;
 
-
-        public Element(int value) {
+        Element(int value) {
             this.value = value;
         }
     }
 
     private int count = 0;
-    private Element header;
-
-    @Override
-    public String toString() {
-        List<Integer> list = new ArrayList<>();
-        return list.toString();
-    }
+    private Element first;
+    private Element last;
 
     @Override
     public void add(int value) {
         Element newElement = new Element(value);
-        if (header == null) {
-            header = newElement;
-
+        if (count == 0) {
+            first = newElement;
         } else {
-            header.next = newElement;
-            newElement.previous = header;
-
+            last.next = newElement;
+            newElement.previous = last;
         }
+        last = newElement;
         count++;
     }
 
     @Override
     public void clear() {
         count = 0;
-        header = null;
+        first = null;
+        last = null;
     }
 
     @Override
-    public boolean contains(int value) {
-        for (int i = 0; i < count; i++) {
-            if (i == value) {
-                return true;
-            }
-        }
-        return false;
-    }
-
-    @Override
-    public int get(int index) {
-        if (index < 0 || index >= count) {
-            throw new IndexOutOfBoundsException();
-        }
-        Element result = header.first;
-        for (int i = 0; i < index; i++) {
-            result = result.next;
-        }
-
-        return result.value;
-    }
-
-    @Override
-    public void set(int index, int element) {
-
+    public boolean isEmpty() {
+        return count == 0;
     }
 
     @Override
@@ -81,46 +49,106 @@ public class IntLinkedList implements IntList {
     }
 
     @Override
-    public boolean isEmpty() {
-        if (count == 0) {
-            return true;
-        } else {
-            return false;
-        }
+    public boolean contains(int value) {
+        return indexOf(value) != -1;
     }
 
     @Override
-    public void add(int index, int element) {
+    public int get(int index) {
+        checkIndexRange(index);
+        return getElementAtIndex(index).value;
+    }
 
-        if (index < 0 || index >= count) {
-            throw new IndexOutOfBoundsException();
-        }
-        Element newNode = new Element(element);
+    @Override
+    public void set(int index, int value) {
+        checkIndexRange(index);
+        getElementAtIndex(index).value = value;
+    }
+
+
+    @Override
+    public void add(int index, int value) {
+        checkIndexRange(index);
+        Element newElement = new Element(value);
         if (index == 0) {
-            add(element);
+            first.previous = newElement;
+            newElement.next = first;
+            first = newElement;
+        } else {
+            Element right = getElementAtIndex(index);
+            Element left = right.previous;
+            left.next = newElement;
+            newElement.previous = left;
+            right.previous = newElement;
+            newElement.next = right;
         }
-        if (index == count) {
-            header.next = newNode;
-            header = newNode;
-        }
-        Element oldNode = header;
-        for (int i = 0; i < index; i++) {
-            oldNode = oldNode.next;
-        }
-        Element oldPrevious = oldNode.previous;
-        oldPrevious.next = newNode;
-        oldNode.previous = newNode;
-
-        newNode.previous = oldPrevious;
-        newNode.next = oldNode;
         count++;
     }
 
     @Override
-    public int remove(int index) {
-        if (index < 0 || index >= count) {
-            throw new IllegalArgumentException();
+    public void remove(int index) {
+        checkIndexRange(index);
+        if (count == 1) {
+            first = null;
+            last = null;
+        } else if (index == 0) {
+            first = first.next;
+            first.previous = null;
+        } else if (index == count - 1) {
+            last = last.previous;
+            last.next = null;
+        } else {
+            Element tmp = getElementAtIndex(index);
+            Element left = tmp.previous;
+            Element right = tmp.next;
+            left.next = right;
+            right.previous = left;
         }
-        return 0;
+        count--;
     }
+
+    @Override
+    public int indexOf(int value) {
+        int index = 0;
+        Element tmp = first;
+        while (tmp != null) {
+            if (tmp.value == value) {
+                return index;
+            }
+            tmp = tmp.next;
+            index++;
+        }
+        return -1;
+    }
+
+    @Override
+    public String toString() {
+        return Arrays.toString(toArray());
+    }
+
+    private int[] toArray() {
+        int[] arr = new int[count];
+        int index = 0;
+        Element tmp = first;
+        while (tmp != null) {
+            arr[index++] = tmp.value;
+            tmp = tmp.next;
+        }
+        return arr;
+    }
+
+    private Element getElementAtIndex(int index) {
+        Element tmp = first;
+        for (int i = 0; i < index; i++) {
+            tmp = tmp.next;
+        }
+        return tmp;
+    }
+
+    private void checkIndexRange(int index) {
+        if (index < 0 || index >= count) {
+            throw new IllegalArgumentException("....");
+        }
+    }
+
 }
